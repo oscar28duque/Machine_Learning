@@ -1,5 +1,5 @@
 const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-latest:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
 const KNOWLEDGE_BASE = `
 REGLAS DE COMPORTAMIENTO DEL ASISTENTE
@@ -16,6 +16,20 @@ function buildContents(userMessage, history = []) {
     ...history,
     { role: "user", parts: [{ text: userMessage }] },
   ];
+}
+
+function localFallbackReply(userMessage) {
+  const text = String(userMessage || "").toLowerCase();
+  if (text.includes("curso") || text.includes("programa") || text.includes("modulo")) {
+    return "Actualmente Gemini no tiene cuota disponible. Mientras tanto: ofrecemos 5 cursos (Fundamentos IA, Intro ML, ML con Algoritmos Geneticos, Deep Learning Fundamentos y Aplicaciones Deep Learning), cada uno con 6 modulos.";
+  }
+  if (text.includes("instructor") || text.includes("fabio") || text.includes("docente")) {
+    return "Actualmente Gemini no tiene cuota disponible. Mientras tanto: el instructor principal es Fabio Alejandro Sastoque Rincon, especialista en ML, Deep Learning y optimizacion evolutiva.";
+  }
+  if (text.includes("historia") || text.includes("plataforma") || text.includes("ia")) {
+    return "Actualmente Gemini no tiene cuota disponible. Mientras tanto: AI Academy es una plataforma de formacion practica en IA, con recorrido historico desde Turing (1950) hasta la IA generativa actual.";
+  }
+  return "Actualmente Gemini no tiene cuota disponible. Puedo ayudarte con informacion de cursos, instructor o plataforma de AI Academy.";
 }
 
 async function callGemini(url, apiKey, contents) {
@@ -52,7 +66,7 @@ export default async function handler(req, res) {
   let { response, data } = await callGemini(GEMINI_API_URL, apiKey, contents);
   if (!response.ok && response.status === 404) {
     const fallbackUrl = GEMINI_API_URL.replace(
-      "gemini-2.0-flash-latest:generateContent",
+      "gemini-2.5-flash:generateContent",
       "gemini-2.0-flash:generateContent"
     );
     ({ response, data } = await callGemini(fallbackUrl, apiKey, contents));
@@ -60,6 +74,9 @@ export default async function handler(req, res) {
 
   if (!response.ok) {
     const message = data?.error?.message || `Error HTTP ${response.status}`;
+    if (response.status === 429) {
+      return res.status(200).json({ text: localFallbackReply(userMessage), fallback: true });
+    }
     return res.status(response.status).json({ error: { message } });
   }
 
