@@ -1,0 +1,176 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border-radius: var(--radius-full);
+  padding: 0.7rem 1.2rem;
+  font-weight: 600;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn--primary {
+  background: linear-gradient(120deg, var(--color-primary), var(--color-accent-blue));
+  color: #fff;
+}
+
+.btn--outline {
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn--ghost {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.btn--lg {
+  padding: 0.9rem 1.4rem;
+}
+
+.btn--full {
+  width: 100%;
+}
+
+.badge {
+  display: inline-flex;
+  border-radius: var(--radius-full);
+  padding: 0.2rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge--level {
+  background: var(--color-surface-blue);
+  color: var(--color-secondary);
+}
+
+.badge--duration,
+.badge--modules {
+  background: var(--color-surface);
+  color: var(--color-primary-dark);
+}
+
+.course-card,
+.module-card,
+.instructor-card,
+.stat-card,
+.mission-card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-6);
+}
+
+.sidebar__top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+#sidebarToggle {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  color: #fff;
+  background: rgb(255 255 255 / 10%);
+}
+
+.sidebar__brand {
+  white-space: nowrap;
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-2);
+  gap: var(--space-2);
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0.7rem;
+  border-radius: var(--radius-md);
+  color: #dbe7f2;
+}
+
+.sidebar__link.active,
+.sidebar__link:hover {
+  background: rgb(255 255 255 / 12%);
+  color: #fff;
+}
+
+.sidebar--collapsed .sidebar__text,
+.sidebar--collapsed .sidebar__brand {
+  display: none;
+}
+
+.course-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+.course-card__badges {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.skill-tag {
+  background: var(--color-surface-blue);
+  color: var(--color-secondary);
+  border-radius: var(--radius-full);
+  padding: 0.25rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+label {
+  font-weight: 600;
+}
+
+input,
+select,
+textarea {
+  border: 1px solid #c7d4df;
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.feedback {
+  min-height: 24px;
+  font-weight: 600;
+}
+
+.feedback--success {
+  color: var(--color-primary);
+}
+
+.feedback--error {
+  color: #c0392b;
+}
