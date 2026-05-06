@@ -1,5 +1,7 @@
 const GEMINI_API_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+const GEMINI_FALLBACK_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 const KNOWLEDGE_BASE = `
 REGLAS DE COMPORTAMIENTO DEL ASISTENTE
@@ -48,6 +50,25 @@ async function callGemini(url, apiKey, contents) {
   return { response, data };
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function callGeminiWithRetry(url, apiKey, contents) {
+  const delays = [0, 700, 1500];
+  let lastResult = null;
+
+  for (const delayMs of delays) {
+    if (delayMs > 0) await sleep(delayMs);
+    const result = await callGemini(url, apiKey, contents);
+    lastResult = result;
+    if (result.response.ok) return result;
+    if (result.response.status !== 503) return result;
+  }
+
+  return lastResult;
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: { message: "Metodo no permitido." } });
@@ -63,19 +84,21 @@ export default async function handler(req, res) {
   const { userMessage = "", history = [] } = req.body || {};
   const contents = buildContents(userMessage, history);
 
-  let { response, data } = await callGemini(GEMINI_API_URL, apiKey, contents);
-  if (!response.ok && response.status === 404) {
-    const fallbackUrl = GEMINI_API_URL.replace(
-      "gemini-2.5-flash:generateContent",
-      "gemini-2.0-flash:generateContent"
-    );
-    ({ response, data } = await callGemini(fallbackUrl, apiKey, contents));
+  let { response, data } = await callGeminiWithRetry(GEMINI_API_URL, apiKey, contents);
+  if (!response.ok && (response.status === 404 || response.status === 503)) {
+    ({ response, data } = await callGeminiWithRetry(GEMINI_FALLBACK_URL, apiKey, contents));
   }
 
   if (!response.ok) {
     const message = data?.error?.message || `Error HTTP ${response.status}`;
     if (response.status === 429) {
       return res.status(200).json({ text: localFallbackReply(userMessage), fallback: true });
+    }
+    if (response.status === 503) {
+      return res.status(200).json({
+        text: "Gemini esta temporalmente saturado. Intenta en unos segundos. Mientras tanto: " + localFallbackReply(userMessage),
+        fallback: true,
+      });
     }
     return res.status(response.status).json({ error: { message } });
   }
